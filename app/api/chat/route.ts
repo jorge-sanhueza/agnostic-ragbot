@@ -34,7 +34,7 @@ export async function POST(req: Request) {
 
       if (userText) {
         console.log("Searching for context for query:", userText);
-        const searchResults = await searchDocuments(userText, 3, 0.1);
+        const searchResults = await searchDocuments(userText, 3, 0.25);
         console.log("Raw search results:", searchResults);
 
         if (searchResults.length > 0) {
@@ -54,18 +54,24 @@ export async function POST(req: Request) {
     const result = streamText({
       model: ollama("gemma3"),
       messages: modelMessages,
-      system: `You are an AI assistant that helps users by providing information from a knowledge base.
-      
+      system: `You are a helpful AI assistant with access to a knowledge base.
+
 ${
   context
-    ? `Relevant context from knowledge base:
+    ? `Here is relevant context from the knowledge base:
 ${context}
 
-Use ONLY this context to answer the user's question. If the context doesn't contain the answer, say "I don't have that information in my knowledge base."`
-    : "You don't have any context from the knowledge base. If the user asks about something that should be in documents, let them know you need relevant documents to answer."
+PRIORITIZE this context when answering. If the context contains the answer, use it.`
+    : "No specific context available from the knowledge base."
 }
 
-Give concise, helpful answers based on the available information.`,
+General Guidelines:
+- For greetings and general questions, use your general knowledge
+- For questions about specific topics that might be in the knowledge base, check if the context helps
+- If the context doesn't contain the answer but you know it, provide your general knowledge
+- Only say "I don't have that information" if it's specifically about the knowledge base content and you truly don't know
+
+Be helpful and concise!`,
     });
 
     return result.toUIMessageStreamResponse();
