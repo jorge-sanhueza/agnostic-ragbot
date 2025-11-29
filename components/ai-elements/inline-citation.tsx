@@ -155,20 +155,31 @@ export const InlineCitationCarouselIndex = ({
   ...props
 }: InlineCitationCarouselIndexProps) => {
   const api = useCarouselApi();
-  const [current, setCurrent] = useState(0);
-  const [count, setCount] = useState(0);
+  const [current, setCurrent] = useState(() =>
+    api ? api.selectedScrollSnap() + 1 : 0
+  );
+  const [count, setCount] = useState(() =>
+    api ? api.scrollSnapList().length : 0
+  );
 
   useEffect(() => {
     if (!api) {
       return;
     }
 
-    setCount(api.scrollSnapList().length);
-    setCurrent(api.selectedScrollSnap() + 1);
-
+    // Only set up the event listener
     api.on("select", () => {
       setCurrent(api.selectedScrollSnap() + 1);
     });
+
+    // Optional: Update count if it changes (though this is usually static)
+    const updateCount = () => {
+      setCount(api.scrollSnapList().length);
+    };
+
+    api.on("slidesChanged", updateCount); // If available
+    // Or just update once if count doesn't change
+    updateCount();
   }, [api]);
 
   return (

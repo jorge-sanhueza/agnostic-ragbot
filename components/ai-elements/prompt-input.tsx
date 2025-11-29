@@ -1025,13 +1025,13 @@ interface SpeechRecognition extends EventTarget {
   lang: string;
   start(): void;
   stop(): void;
-  onstart: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onend: ((this: SpeechRecognition, ev: Event) => any) | null;
+  onstart: ((this: SpeechRecognition, ev: Event) => void) | null;
+  onend: ((this: SpeechRecognition, ev: Event) => void) | null;
   onresult:
-    | ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any)
+    | ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => void)
     | null;
   onerror:
-    | ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any)
+    | ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => void)
     | null;
 }
 
@@ -1087,12 +1087,7 @@ export const PromptInputSpeechButton = ({
   ...props
 }: PromptInputSpeechButtonProps) => {
   const [isListening, setIsListening] = useState(false);
-  const [recognition, setRecognition] = useState<SpeechRecognition | null>(
-    null
-  );
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
-
-  useEffect(() => {
+  const [recognition] = useState<SpeechRecognition | null>(() => {
     if (
       typeof window !== "undefined" &&
       ("SpeechRecognition" in window || "webkitSpeechRecognition" in window)
@@ -1105,51 +1100,46 @@ export const PromptInputSpeechButton = ({
       speechRecognition.interimResults = true;
       speechRecognition.lang = "en-US";
 
-      speechRecognition.onstart = () => {
-        setIsListening(true);
-      };
-
-      speechRecognition.onend = () => {
-        setIsListening(false);
-      };
-
+      speechRecognition.onstart = () => setIsListening(true);
+      speechRecognition.onend = () => setIsListening(false);
       speechRecognition.onresult = (event) => {
         let finalTranscript = "";
-
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const result = event.results[i];
           if (result.isFinal) {
             finalTranscript += result[0]?.transcript ?? "";
           }
         }
-
         if (finalTranscript && textareaRef?.current) {
           const textarea = textareaRef.current;
           const currentValue = textarea.value;
           const newValue =
             currentValue + (currentValue ? " " : "") + finalTranscript;
-
           textarea.value = newValue;
           textarea.dispatchEvent(new Event("input", { bubbles: true }));
           onTranscriptionChange?.(newValue);
         }
       };
-
       speechRecognition.onerror = (event) => {
         console.error("Speech recognition error:", event.error);
         setIsListening(false);
       };
 
-      recognitionRef.current = speechRecognition;
-      setRecognition(speechRecognition);
+      return speechRecognition;
     }
+    return null;
+  });
+  const recognitionRef = useRef(recognition);
+
+  useEffect(() => {
+    recognitionRef.current = recognition;
 
     return () => {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
     };
-  }, [textareaRef, onTranscriptionChange]);
+  }, [recognition]);
 
   const toggleListening = useCallback(() => {
     if (!recognition) {

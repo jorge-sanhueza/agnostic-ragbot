@@ -18,6 +18,10 @@ export type TextShimmerProps = {
   spread?: number;
 };
 
+const MotionP = motion.p;
+const MotionSpan = motion.span;
+const MotionDiv = motion.div;
+
 const ShimmerComponent = ({
   children,
   as: Component = "p",
@@ -25,14 +29,25 @@ const ShimmerComponent = ({
   duration = 2,
   spread = 2,
 }: TextShimmerProps) => {
-  const MotionComponent = motion.create(
-    Component as keyof JSX.IntrinsicElements
-  );
-
   const dynamicSpread = useMemo(
     () => (children?.length ?? 0) * spread,
     [children, spread]
   );
+
+  // Choose the appropriate motion component based on the 'as' prop
+  let MotionComponent;
+  switch (Component) {
+    case "span":
+      MotionComponent = MotionSpan;
+      break;
+    case "div":
+      MotionComponent = MotionDiv;
+      break;
+    case "p":
+    default:
+      MotionComponent = MotionP;
+      break;
+  }
 
   return (
     <MotionComponent

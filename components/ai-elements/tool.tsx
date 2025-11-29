@@ -29,15 +29,24 @@ export const Tool = ({ className, ...props }: ToolProps) => (
   />
 );
 
+// Create a custom type that includes all the states you need
+type CustomToolState =
+  | ToolUIPart["state"] // The original states
+  | "approval-requested"
+  | "approval-responded"
+  | "output-denied";
+
 export type ToolHeaderProps = {
   title?: string;
   type: ToolUIPart["type"];
-  state: ToolUIPart["state"];
+  state: CustomToolState; // Use the custom type here
   className?: string;
 };
 
-const getStatusBadge = (status: ToolUIPart["state"]) => {
-  const labels: Record<ToolUIPart["state"], string> = {
+const getStatusBadge = (status: CustomToolState) => {
+  // Use custom type here too
+  const labels: Record<CustomToolState, string> = {
+    // Use custom type here
     "input-streaming": "Pending",
     "input-available": "Running",
     "approval-requested": "Awaiting Approval",
@@ -47,7 +56,8 @@ const getStatusBadge = (status: ToolUIPart["state"]) => {
     "output-denied": "Denied",
   };
 
-  const icons: Record<ToolUIPart["state"], ReactNode> = {
+  const icons: Record<CustomToolState, ReactNode> = {
+    // Use custom type here
     "input-streaming": <CircleIcon className="size-4" />,
     "input-available": <ClockIcon className="size-4 animate-pulse" />,
     "approval-requested": <ClockIcon className="size-4 text-yellow-600" />,
