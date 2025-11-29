@@ -11,6 +11,12 @@ import {
   useContext,
 } from "react";
 
+type CustomState =
+  | ToolUIPart["state"]
+  | "approval-requested"
+  | "approval-responded"
+  | "output-denied";
+
 type ToolUIPartApproval =
   | {
       id: string;
@@ -41,7 +47,7 @@ type ToolUIPartApproval =
 
 type ConfirmationContextValue = {
   approval: ToolUIPartApproval;
-  state: ToolUIPart["state"];
+  state: CustomState;
 };
 
 const ConfirmationContext = createContext<ConfirmationContextValue | null>(
