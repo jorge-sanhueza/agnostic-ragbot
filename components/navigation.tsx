@@ -17,7 +17,7 @@ export const Navigation = () => {
           <div className="w-8 h-8 bg-[#D42B22] rounded-lg flex items-center justify-center shadow-sm">
             <span className="text-white font-bold text-sm">AI</span>
           </div>
-          <span className="text-xl font-semibold text-zinc-700">DexpressChat</span>
+          <span className="text-xl font-semibold text-zinc-700">Chat</span>
         </Link>
 
         <div className="flex items-center gap-4">

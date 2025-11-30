@@ -63,7 +63,7 @@ export default function RAGChatBot() {
             {messages.length === 0 && (
               <div className="text-center py-12">
                 <h3 className="text-xl font-medium text-zinc-700 mb-2">
-                  Bienvenido al Asistente IA Dexpress
+                  Bienvenido al Asistente IA
                 </h3>
                 <p className="text-zinc-500">
                   Preguntame cualquier cosa sobre los documentos subidos al
